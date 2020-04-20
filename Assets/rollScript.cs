@@ -9,6 +9,10 @@ public class rollScript : MonoBehaviour
     public int diceOutput = 0;
     public bool doubleDice = false;
     public bool roll = false;
+
+    public bool getIsDouble() { return doubleDice; }
+    public int getRollNo() { return diceOutput; }
+    public void setRoll(bool newVal) { roll = newVal; }
     
 
     private void Update()
@@ -19,9 +23,10 @@ public class rollScript : MonoBehaviour
 
     private IEnumerator DiceRoll()
     {
-        Debug.Log("IEnumerator");
         int diceValue = 0;
         int temp = -1;
+        bool first = true;
+
         while (temp != diceValue)                   //check if the dice value has remained the same for over 1 sec
         {
             diceValue = 0;
@@ -32,7 +37,12 @@ public class rollScript : MonoBehaviour
             }
             temp = diceValue;                       //check the dice value once and save to temp
             diceValue = 0;
-            yield return new WaitForSeconds(1f);
+
+            if (first) {
+                yield return new WaitForSeconds(2f);
+                first = false;
+            } 
+
             foreach (RollingDie d in Dice.allDice)
             {
                 diceValue += d.value;               //check the dice value again and save to diceValue
