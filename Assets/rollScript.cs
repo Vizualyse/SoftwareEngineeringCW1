@@ -6,10 +6,48 @@ public class rollScript : MonoBehaviour
 {
 
     private GameObject spawnPoint = null;
+    public int diceOutput = 0;
+    public bool doubleDice = false;
+    public bool roll = false;
+    
 
     private void Update()
     {
         UpdateRoll();
+        
+    }
+
+    private IEnumerator DiceRoll()
+    {
+        Debug.Log("IEnumerator");
+        int diceValue = 0;
+        int temp = -1;
+        while (temp != diceValue)                   //check if the dice value has remained the same for over 1 sec
+        {
+            diceValue = 0;
+            temp = -1;
+            foreach (RollingDie d in Dice.allDice)
+            {
+                diceValue += d.value;
+            }
+            temp = diceValue;                       //check the dice value once and save to temp
+            diceValue = 0;
+            yield return new WaitForSeconds(1f);
+            foreach (RollingDie d in Dice.allDice)
+            {
+                diceValue += d.value;               //check the dice value again and save to diceValue
+            }
+        }
+        temp = -1;
+        foreach (RollingDie d in Dice.allDice)
+        {
+            if(d.value == temp)
+            {
+                doubleDice = true;                  //check for doubles
+            }
+            temp = d.value;
+        }
+        diceOutput = diceValue;
     }
 
     private Vector3 Force()
@@ -40,21 +78,19 @@ public class rollScript : MonoBehaviour
     {
         spawnPoint = GameObject.Find("spawnPoint");
         // check if we have to roll dice
-        if (Input.GetMouseButtonDown(0))
+        if (roll)
         {
+            roll = false;
+            diceOutput = 0;
+            doubleDice = false;
 
-            Debug.Log("Hi");
             // left mouse button clicked so roll random colored dice 2 of each dieType
-            Dice.Clear();
+            Dice.Clear();   
 
-            Dice.Roll("1d10", "d10-" + randomColor, spawnPoint.transform.position, Force());
-            Dice.Roll("1d10", "d10-" + randomColor, spawnPoint.transform.position, Force());
-            Dice.Roll("1d10", "d10-" + randomColor, spawnPoint.transform.position, Force());
-            Dice.Roll("1d10", "d10-" + randomColor, spawnPoint.transform.position, Force());
             Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
             Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
-            Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
-            Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
+            
+            StartCoroutine("DiceRoll");
         }
     }
 }

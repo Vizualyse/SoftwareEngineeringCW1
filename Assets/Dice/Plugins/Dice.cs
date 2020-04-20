@@ -51,9 +51,9 @@ public class Dice : MonoBehaviour {
 	// reference to the dice that have to be rolled
     private static ArrayList rollQueue = new ArrayList();
 	// reference to all dice, created by Dice.Roll
-	private static ArrayList allDice = new ArrayList();
+	public static ArrayList allDice = new ArrayList();
 	// reference to the dice that are rolling
-    private static ArrayList rollingDice = new ArrayList();
+    public static ArrayList rollingDice = new ArrayList();
 
 	//------------------------------------------------------------------------------------------------------------------------------
 	// public methods
