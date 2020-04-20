@@ -10,12 +10,15 @@ public class PlayerObject : MonoBehaviour
     private int position;
     private List<TileObject> propertiesOwned;
 
+    private bool isOut;
+
     public void setupPlayer(string _name, PiecesEnum _piece, int _money, int _position) {
         propertiesOwned = new List<TileObject>();
         playerName = _name;
         piece = _piece;
         money = _money;
         position = _position;
+        isOut = false;
     }
 
     public string getPlayerName() { return playerName; }
@@ -29,6 +32,7 @@ public class PlayerObject : MonoBehaviour
     public void addProperty(TileObject prop) { propertiesOwned.Add(prop); }
     public void removeProperty(TileObject prop) { propertiesOwned.Remove(prop); }
 
-    //endTurn()
+    public void setIsOut(bool set) { isOut = set; }
+    public bool getIsOut() { return isOut; }
 
 }

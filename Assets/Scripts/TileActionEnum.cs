@@ -5,5 +5,6 @@ public enum TileActionEnum
     PickCard,
     PayTax,
     CollectFines,
-    CollectGO
+    CollectGO,
+    Jail
 }
