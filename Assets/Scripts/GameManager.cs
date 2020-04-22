@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,7 +11,10 @@ public class GameManager : MonoBehaviour
     private CardObject[] cards;
     private int currentTurn; //will be used to get player at index currentTurn in the list
 
+    private rollScript diceManager; // will be used to call the dice roll
+
     void Start() {
+        diceManager = GameObject.Find("diceRoller").GetComponent<rollScript>();
         setupManager(); //if this runs as a simulator then it doesnt need to take player as param in its things - or can to save rewrites
         //can have a bool to check whether a next turn has started? for what
 
@@ -22,7 +27,7 @@ public class GameManager : MonoBehaviour
         runTurns();
     }
 
-    public void runTurns() {
+    public void runTurns() {//this wont work -- make the UI call the things
         rollDice(players[currentTurn]);
         while (!isGameFinished()) {
             rollDice(players[currentTurn]);
@@ -56,6 +61,15 @@ public class GameManager : MonoBehaviour
         //for player input, create playerObject and add to players
     }
 
+    public void setUpPlayers(GameObject[] playerData) {
+        players = new PlayerObject[playerData.Length]; //careful as this may always set to 6
+        for (int i = 0; i < players.Length; i++) { //Convert all objects to not inherit monobehaviour? - GM does all UI?
+            PlayerObject player = new PlayerObject();
+            player.setupPlayer(playerData[i].GetComponent<InputField>().text, (PiecesEnum) System.Enum.Parse(typeof(PiecesEnum), playerData[i].GetComponent<Dropdown>().options[playerData[i].GetComponent<Dropdown>().value].text), 1500,0);
+            players[i] = player;
+        }
+    }
+
 
     public void purchaseProperty(PlayerObject player) {
         if (player.getMoney() >= ((PropertyData)board[player.getPosition()].getData()).getPurchasePrice()) {
@@ -68,20 +82,20 @@ public class GameManager : MonoBehaviour
     }
 
     public void rollDice(PlayerObject player) {
-        //call the dice roll code here and get the number rolled
-        int totalRolled = 0;
+        diceManager.setRoll(true);
+
+        int totalRolled = diceManager.getRollNo();
         bool jailed = false;
-        //totalRolled += roll
-        //if (rolled double) {
-        //    rollagain
-        //    totalRolled += roll
-        //    if(rolldouble){
-        //        roll again && totalRolled += roll
-        //        if(rolleddouble){
-        //            totalRolled = 0 && jailed
-        //        }
-        //    }
-        //}
+        if (diceManager.getIsDouble()) {
+            totalRolled += diceManager.getRollNo();
+            if(diceManager.getIsDouble()) {
+                totalRolled += diceManager.getRollNo();
+                if (diceManager.getIsDouble()) {
+                    totalRolled = 0;
+                    jailed = true;
+                }
+            }
+        }
 
 
         if (jailed) {
@@ -97,7 +111,7 @@ public class GameManager : MonoBehaviour
             player.increasePosition(totalRolled);
         }
         //runTileAction(), or maybe run tileAction for jailed aswell?
-        //play the relevant ui stuff for the above
+        //play the relevant ui stuff for the above -- then THAT calls runTileAction()
     }
 
     public void setPlayOrder() {
@@ -107,8 +121,8 @@ public class GameManager : MonoBehaviour
         //adds them in the correct position in the new temp list
 
         for (int i = 0; i < players.Length; i++) {
-            //roll the dice
-            //tempDict.Add(roll,players[i]);
+            diceManager.setRoll(true);
+            tempDict.Add(diceManager.getRollNo(),players[i]);
         }
 
         //add the players in the new order
@@ -236,5 +250,4 @@ public class GameManager : MonoBehaviour
     }
 
     //endTurn()
-
 }

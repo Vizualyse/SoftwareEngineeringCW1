@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerObject : MonoBehaviour
+public class PlayerObject
 {
     private string playerName;
     private PiecesEnum piece;

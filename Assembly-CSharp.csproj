@@ -63,9 +63,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Dice\Plugins\Dice.cs" />
+    <Compile Include="Assets\Dice\Plugins\Die.cs" />
+    <Compile Include="Assets\Dice\Scripts\Dice\Die_d10.cs" />
+    <Compile Include="Assets\Dice\Scripts\Dice\Die_d6.cs" />
+    <Compile Include="Assets\Dice\scenes\Demo\AppDemo.cs" />
     <Compile Include="Assets\Scripts\CardActionEnum.cs" />
     <Compile Include="Assets\Scripts\CardData.cs" />
     <Compile Include="Assets\Scripts\CardObject.cs" />
+    <Compile Include="Assets\Scripts\GMUI.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\NonPropData.cs" />
     <Compile Include="Assets\Scripts\PiecesEnum.cs" />
@@ -75,12 +81,7 @@
     <Compile Include="Assets\Scripts\TileActionEnum.cs" />
     <Compile Include="Assets\Scripts\TileData.cs" />
     <Compile Include="Assets\Scripts\TileObject.cs" />
-    <Compile Include="Assets\Dice\Plugins\Dice.cs" />
-    <Compile Include="Assets\Dice\Plugins\Die.cs" />
-    <Compile Include="Assets\Dice\Scripts\Dice\Die_d10.cs" />
-    <Compile Include="Assets\Dice\Scripts\Dice\Die_d6.cs" />
-    <Compile Include="Assets\Dice\scenes\Demo\AppDemo.cs" />
-    <Compile Include="Assets\rollScript.cs" />
+    <Compile Include="Assets\Scripts\rollScript.cs" />
     <None Include="Assets\Dice\-Read-Me-.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/Danial/Documents/GitHub/SoftwareEngineeringCW1/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
