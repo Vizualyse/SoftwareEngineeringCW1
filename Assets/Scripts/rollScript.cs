@@ -4,18 +4,20 @@ using UnityEngine;
 
 public class rollScript : MonoBehaviour
 {
-
+    private GameObject GM;
     private GameObject spawnPoint = null;
     public int diceOutput = 0;
     public bool doubleDice = false;
     public bool roll = false;
 
-    private bool finishedRoll = false;
 
-    public bool getIsDouble() { while (!finishedRoll) { } return doubleDice; }
-    public int getRollNo() { while (!finishedRoll) { } return diceOutput; }
+    public bool getIsDouble() { return doubleDice; }
+    public int getRollNo() { return diceOutput; }
     public void setRoll(bool newVal) { roll = newVal; }
-    
+
+    private void Start() {
+        GM = GameObject.Find("GM");  
+    }
 
     private void Update()
     {
@@ -60,12 +62,12 @@ public class rollScript : MonoBehaviour
             temp = d.value;
         }
         diceOutput = diceValue;
-        finishedRoll = true;
+        GM.GetComponent<GameManager>().setDoneWait(true);
     }
 
     private Vector3 Force()
     {
-        Vector3 rollTarget = Vector3.zero + new Vector3(2 + 7 * Random.value, .5F + 4 * Random.value, -2 - 3 * Random.value);
+        Vector3 rollTarget = Vector3.zero + new Vector3(2 + 4 * Random.value, .5F + 4 * Random.value, -2 - 3 * Random.value);
         return Vector3.Lerp(spawnPoint.transform.position, rollTarget, 1).normalized * (-35 - Random.value * 20);
     }
 
@@ -89,7 +91,7 @@ public class rollScript : MonoBehaviour
     }
     void UpdateRoll()
     {
-        spawnPoint = GameObject.Find("spawnPoint");
+        spawnPoint = GameObject.Find("diceRoller");
         // check if we have to roll dice
         if (roll)
         {
@@ -100,7 +102,6 @@ public class rollScript : MonoBehaviour
             // left mouse button clicked so roll random colored dice 2 of each dieType
             Dice.Clear();
 
-            finishedRoll = false;
             Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
             Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
             

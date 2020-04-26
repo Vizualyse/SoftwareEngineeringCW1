@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardObject : MonoBehaviour
+public class CardObject
 {
     private CardData data;
 

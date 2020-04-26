@@ -6,5 +6,6 @@ public enum TileActionEnum
     PayTax,
     CollectFines,
     CollectGO,
-    Jail
+    Jail,
+    None
 }

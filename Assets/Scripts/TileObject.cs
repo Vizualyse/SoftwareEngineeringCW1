@@ -6,7 +6,7 @@ public class TileObject : MonoBehaviour
 {
     private TileData data;
 
-    public void setupTileObject(TileData _data) {
+    public void setData(TileData _data) {
         data = _data;
     }
 

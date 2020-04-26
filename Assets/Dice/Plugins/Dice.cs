@@ -62,7 +62,7 @@ public class Dice : MonoBehaviour {
 	/// <summary>
 	/// This method will create/instance a prefab at a specific position with a specific rotation and a specific scale and assign a material
 	/// </summary>
-	public static GameObject prefab(string name, Vector3 position, Vector3 rotation, Vector3 scale, string mat) 
+	public static GameObject prefab(string name, Vector3 position, Vector3 rotation, string mat) 
 	{		
 		// load the prefab from Resources
         Object pf = Resources.Load("Prefabs/" + name);
@@ -76,7 +76,6 @@ public class Dice : MonoBehaviour {
 				if (mat!="") inst.GetComponent<Renderer>().material = material(mat);
 				inst.transform.position = position;
 				inst.transform.Rotate(rotation);
-				inst.transform.localScale = scale;
 				// return the created instance (GameObject)
 				return inst;
 			}
@@ -167,7 +166,7 @@ public class Dice : MonoBehaviour {
 				spawnPoint.y = spawnPoint.y - 1 + Random.value * 2;
                 spawnPoint.y = spawnPoint.y - 1 + Random.value * 2;
 				// create the die prefab/gameObject
-                GameObject die = prefab(dieType, spawnPoint, Vector3.zero, Vector3.one, mat);
+                GameObject die = prefab(dieType, spawnPoint, Vector3.zero, mat);
 				// give it a random rotation
 				die.transform.Rotate(new Vector3(Random.value * 360, Random.value * 360, Random.value * 360));
 				// inactivate this gameObject because activating it will be handeled using the rollQueue and at the apropriate time
