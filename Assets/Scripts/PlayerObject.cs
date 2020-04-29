@@ -35,4 +35,6 @@ public class PlayerObject
     public void setIsOut(bool set) { isOut = set; }
     public bool getIsOut() { return isOut; }
 
+    public List<TileObject> getPropertiesOwned() { return propertiesOwned; }
+
 }

@@ -25,6 +25,9 @@ public class rollScript : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// Stores the number rolled on the dice, after checking to see if they have stopped rolling
+    /// </summary>
     private IEnumerator DiceRoll()
     {
         int diceValue = 0;
@@ -65,12 +68,20 @@ public class rollScript : MonoBehaviour
         GM.GetComponent<GameManager>().setDoneWait(true);
     }
 
+    /// <summary>
+    /// Creates a force to apply to the dice
+    /// </summary>
+    /// <returns>Returns the force created</returns>
     private Vector3 Force()
     {
         Vector3 rollTarget = Vector3.zero + new Vector3(2 + 4 * Random.value, .5F + 4 * Random.value, -2 - 3 * Random.value);
         return Vector3.Lerp(spawnPoint.transform.position, rollTarget, 1).normalized * (-35 - Random.value * 20);
     }
 
+    /// <summary>
+    /// Creates a random colour for the dice
+    /// </summary>
+    /// <returns>returns this colour</returns>
     string randomColor
     {
         get
@@ -89,6 +100,10 @@ public class rollScript : MonoBehaviour
             return _color;
         }
     }
+
+    /// <summary>
+    /// Checks if a roll has been called, if so it runs a roll
+    /// </summary>
     void UpdateRoll()
     {
         spawnPoint = GameObject.Find("diceRoller");
