@@ -1,5 +1,5 @@
 ﻿
-public class TileData 
+public class TileData
 {
     private string name;
     private int position;
@@ -7,7 +7,8 @@ public class TileData
     private TileActionEnum tileAction;
     private PlayerObject owner;
 
-    public TileData(string _name, int _position, bool _canBeOwned, TileActionEnum _tileAction) {
+    public TileData(string _name, int _position, bool _canBeOwned, TileActionEnum _tileAction)
+    {
         name = _name;
         position = _position;
         canBeOwned = _canBeOwned;
@@ -20,5 +21,5 @@ public class TileData
     public bool getCanBeOwned() { return canBeOwned; }
     public TileActionEnum getTileAction() { return tileAction; }
     public PlayerObject getOwner() { return owner; }
-    public void setOwner (PlayerObject newOwner) { owner = newOwner; }
+    public void setOwner(PlayerObject newOwner) { owner = newOwner; }
 }

@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+﻿using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System;
 
-public class GMUI : MonoBehaviour{
+public class GMUI : MonoBehaviour
+{
 
     //GameManager object
     private GameManager GM;
@@ -48,7 +47,8 @@ public class GMUI : MonoBehaviour{
     /// <summary>
     /// Initialise variables
     /// </summary>
-    void Start() {
+    void Start()
+    {
         GM = gameObject.GetComponent<GameManager>();
         setDropdownOptions();
     }
@@ -57,7 +57,8 @@ public class GMUI : MonoBehaviour{
     /// Loads the appropriate players info
     /// </summary>
     /// <param name="index">Index of this tab</param>
-    public void showPlayerInfo(int index) {
+    public void showPlayerInfo(int index)
+    {
 
         PlayerObject[] players = GM.getPlayers();
         PlayerObject player = GM.getPlayers()[index];
@@ -65,19 +66,26 @@ public class GMUI : MonoBehaviour{
         contentMoneyText.text = "Money: " + player.getMoney();
         contentPosText.text = "Position: " + player.getPosition();
 
-        foreach (Transform obj in contentPropContainer.GetComponentsInChildren<Transform>()) {
-            if (obj.gameObject != contentPropContainer) {
+        foreach (Transform obj in contentPropContainer.GetComponentsInChildren<Transform>())
+        {
+            if (obj.gameObject != contentPropContainer)
+            {
                 Destroy(obj.gameObject);
             }
         }
 
-        foreach (TileObject tile in player.getPropertiesOwned()) {
+        foreach (TileObject tile in player.getPropertiesOwned())
+        {
             PropertyData data = (PropertyData)tile.getData();
-            GameObject propText = Instantiate(infoPrefab,contentPropContainer.transform);
-            foreach(Text text in propText.GetComponentsInChildren<Text>()) {
-                if (text.name == "Name") {
+            GameObject propText = Instantiate(infoPrefab, contentPropContainer.transform);
+            foreach (Text text in propText.GetComponentsInChildren<Text>())
+            {
+                if (text.name == "Name")
+                {
                     text.text = "Property: " + data.getName();
-                } else{
+                }
+                else
+                {
                     text.text = "Current Rent: " + data.getCurrentRentPrice();
                 }
             }
@@ -88,11 +96,16 @@ public class GMUI : MonoBehaviour{
     /// Sets up the details of the property to show the user
     /// </summary>
     /// <param name="data">The data of the property</param>
-    public void setupPurchaseUI(PropertyData data) {
-        foreach (Text text in purchasePropUI.GetComponentsInChildren<Text>()) {
-            if (text.name == "Name") {
+    public void setupPurchaseUI(PropertyData data)
+    {
+        foreach (Text text in purchasePropUI.GetComponentsInChildren<Text>())
+        {
+            if (text.name == "Name")
+            {
                 text.text = data.getName();
-            } else if (text.name == "Details") {
+            }
+            else if (text.name == "Details")
+            {
                 text.text = "Price: " + data.getPurchasePrice() + "\nBase Rent: " + data.getCurrentRentPrice();
             }
         }
@@ -102,12 +115,17 @@ public class GMUI : MonoBehaviour{
     /// Will set up the correct number of info tabs
     /// </summary>
     /// <param name="size">the number of players</param>
-    public void setUpInfoTabs(int size) {
+    public void setUpInfoTabs(int size)
+    {
         PlayerObject[] players = GM.getPlayers();
-        for (int i = 0; i < tabs.Length; i++) {
-            if (i >= size) {
+        for (int i = 0; i < tabs.Length; i++)
+        {
+            if (i >= size)
+            {
                 tabs[i].SetActive(false);
-            } else {
+            }
+            else
+            {
                 tabs[i].GetComponentInChildren<Text>().text = players[i].getPlayerName();
             }
         }
@@ -116,19 +134,24 @@ public class GMUI : MonoBehaviour{
     /// <summary>
     /// Send the player data to the GM and call it to setUp Players
     /// </summary>
-    public void submitPlayers() {
+    public void submitPlayers()
+    {
         //save the data of added players, and change panel -- send the data to GM (call setupPlayers)
         int active = 0;
-        for (int i = 0; i < addedPlayerUI.Length;i++) {
-            if (addedPlayerUI[i].activeSelf != false) {
+        for (int i = 0; i < addedPlayerUI.Length; i++)
+        {
+            if (addedPlayerUI[i].activeSelf != false)
+            {
                 active++;
             }
         }
 
         GameObject[] temp = new GameObject[active];
         active = 0;
-        for (int j = 0; j < addedPlayerUI.Length; j++) { 
-            if (addedPlayerUI[j].activeSelf != false) {
+        for (int j = 0; j < addedPlayerUI.Length; j++)
+        {
+            if (addedPlayerUI[j].activeSelf != false)
+            {
                 temp[active] = addedPlayerUI[j];
                 active++;
             }
@@ -145,7 +168,7 @@ public class GMUI : MonoBehaviour{
     /// <summary>
     /// Make a call to roll the dice
     /// </summary>
-    public void rollDiceButton() {GM.rollDice(); setCameraToAbove(); }
+    public void rollDiceButton() { GM.rollDice(); setCameraToAbove(); }
 
     /// <summary>
     /// Moves the camera to a new position
@@ -156,7 +179,7 @@ public class GMUI : MonoBehaviour{
     /// <summary>
     /// Make a call to start the next turn
     /// </summary>
-    public void endTurn() {GM.nextPlayerTurn();}
+    public void endTurn() { GM.nextPlayerTurn(); }
 
     /// <summary>
     /// Update who the current player is
@@ -168,7 +191,8 @@ public class GMUI : MonoBehaviour{
     /// Removes a playerData from being added
     /// </summary>
     /// <param name="ui">The playerData to ignore</param>
-    public void removePlayerUI(GameObject ui) {
+    public void removePlayerUI(GameObject ui)
+    {
         ui.SetActive(false);
         //split the text display to retrieve what the selected piece was
         addPlayerUI.GetComponentInChildren<Dropdown>().options.Add(new Dropdown.OptionData() { text = ui.GetComponentInChildren<Text>().text.Split(new string[] { " as: " }, StringSplitOptions.None)[1] });
@@ -177,13 +201,16 @@ public class GMUI : MonoBehaviour{
     /// <summary>
     /// Uses the data input to add a ui showing that this has been read
     /// </summary>
-    public void MakeAddPlayerUI() {
+    public void MakeAddPlayerUI()
+    {
         bool added = false;
         int i = 0;
         Dropdown piece = addPlayerUI.GetComponentInChildren<Dropdown>();
         InputField inp = addPlayerUI.GetComponentInChildren<InputField>();
-        while (i < addedPlayerUI.Length && !added) {
-            if (addedPlayerUI[i].activeSelf == false) {
+        while (i < addedPlayerUI.Length && !added)
+        {
+            if (addedPlayerUI[i].activeSelf == false)
+            {
                 addedPlayerUI[i].SetActive(true);
                 addedPlayerUI[i].GetComponentInChildren<Text>().text = inp.text + " as: " + piece.options[piece.value].text;
                 added = true;
@@ -197,7 +224,8 @@ public class GMUI : MonoBehaviour{
     /// Shows a popup with text to let the user know what happened
     /// </summary>
     /// <param name="text">The text to show</param>
-    public void setUpPopupUI(String text) {
+    public void setUpPopupUI(String text)
+    {
         popupObj.SetActive(true);
         popupObj.GetComponentInChildren<Text>().text = text;
     }
@@ -205,24 +233,27 @@ public class GMUI : MonoBehaviour{
     /// <summary>
     /// Set the options of the pieces a player can choose to those in the PiecesTypeEnum class
     /// </summary>
-    private void setDropdownOptions() { //make it get from an array, from which things get removed and added
-        
+    private void setDropdownOptions()
+    { //make it get from an array, from which things get removed and added
+
         addPlayerUI.GetComponentInChildren<Dropdown>().options.Clear();
-        foreach (String piece in System.Enum.GetNames(typeof(PiecesEnum))) {
+        foreach (String piece in System.Enum.GetNames(typeof(PiecesEnum)))
+        {
             addPlayerUI.GetComponentInChildren<Dropdown>().options.Add(new Dropdown.OptionData() { text = piece });
         }
-        
+
     }
 
-    public void setUpGameOverUI(PlayerObject winner) {
+    public void setUpGameOverUI(PlayerObject winner)
+    {
         gameOverUI.SetActive(true);
         winnerName.text = winner.getPlayerName();
         winnerWorth.text = "£" + winner.getMoney();
     }
 
-    public void setOff(GameObject setOff) { setOff.SetActive(false);}
+    public void setOff(GameObject setOff) { setOff.SetActive(false); }
 
-    public void setOn(GameObject setOn) { setOn.SetActive(true);}
+    public void setOn(GameObject setOn) { setOn.SetActive(true); }
 
     /// <summary>
     /// Toggles the active state of a GameObject

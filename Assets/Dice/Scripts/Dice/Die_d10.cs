@@ -13,13 +13,13 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 using UnityEngine;
-using System.Collections;
 
 // Die subclass to expose the D10 side hitVectors
-public class Die_d10 : Die {
-		
+public class Die_d10 : Die
+{
+
     override protected Vector3 HitVector(int side)
     {
         switch (side)
@@ -37,5 +37,5 @@ public class Die_d10 : Die {
         }
         return Vector3.zero;
     }
-	
+
 }

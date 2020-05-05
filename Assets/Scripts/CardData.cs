@@ -6,7 +6,8 @@ public class CardData
     private CardActionEnum actionType;
     private string cardActionValue;
 
-    public CardData(string _name, string _pile, CardActionEnum _actionType, string _cardActionValue) {
+    public CardData(string _name, string _pile, CardActionEnum _actionType, string _cardActionValue)
+    {
         name = _name;
         pile = _pile;
         actionType = _actionType;

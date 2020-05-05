@@ -6,7 +6,8 @@ public class PropertyData : TileData
     private Dictionary<RentTypeEnum, int> rentCharges;
     private RentTypeEnum currentRent;
 
-    public PropertyData(string _colour, int _purchasePrice, Dictionary<RentTypeEnum,int> _rentCharges,RentTypeEnum _currentRent,string _name, int _position, bool _canBeOwned, TileActionEnum _tileAction) : base(_name, _position, _canBeOwned, _tileAction) {
+    public PropertyData(string _colour, int _purchasePrice, Dictionary<RentTypeEnum, int> _rentCharges, RentTypeEnum _currentRent, string _name, int _position, bool _canBeOwned, TileActionEnum _tileAction) : base(_name, _position, _canBeOwned, _tileAction)
+    {
         colour = _colour;
         purchasePrice = _purchasePrice;
         rentCharges = _rentCharges;
@@ -35,5 +36,5 @@ public class PropertyData : TileData
     /// Get the current rent proce being charged
     /// </summary>
     /// <returns>REturns the current price</returns>
-    public int getCurrentRentPrice() {return rentCharges[currentRent]; }
+    public int getCurrentRentPrice() { return rentCharges[currentRent]; }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class rollScript : MonoBehaviour
@@ -15,14 +14,15 @@ public class rollScript : MonoBehaviour
     public int getRollNo() { return diceOutput; }
     public void setRoll(bool newVal) { roll = newVal; }
 
-    private void Start() {
-        GM = GameObject.Find("GM");  
+    private void Start()
+    {
+        GM = GameObject.Find("GM");
     }
 
     private void Update()
     {
         UpdateRoll();
-        
+
     }
 
     /// <summary>
@@ -45,10 +45,11 @@ public class rollScript : MonoBehaviour
             temp = diceValue;                       //check the dice value once and save to temp
             diceValue = 0;
 
-            if (first) {
+            if (first)
+            {
                 yield return new WaitForSeconds(2f);
                 first = false;
-            } 
+            }
 
             foreach (RollingDie d in Dice.allDice)
             {
@@ -58,7 +59,7 @@ public class rollScript : MonoBehaviour
         temp = -1;
         foreach (RollingDie d in Dice.allDice)
         {
-            if(d.value == temp)
+            if (d.value == temp)
             {
                 doubleDice = true;                  //check for doubles
             }
@@ -119,7 +120,7 @@ public class rollScript : MonoBehaviour
 
             Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
             Dice.Roll("1d6", "d6-" + randomColor, spawnPoint.transform.position, Force());
-            
+
             StartCoroutine("DiceRoll");
         }
     }

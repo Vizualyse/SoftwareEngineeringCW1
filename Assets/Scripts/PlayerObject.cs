@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 public class PlayerObject
 {
@@ -12,7 +10,8 @@ public class PlayerObject
 
     private bool isOut;
 
-    public void setupPlayer(string _name, PiecesEnum _piece, int _money, int _position) {
+    public void setupPlayer(string _name, PiecesEnum _piece, int _money, int _position)
+    {
         propertiesOwned = new List<TileObject>();
         playerName = _name;
         piece = _piece;
@@ -28,7 +27,7 @@ public class PlayerObject
     public void decreaseMoney(int dec) { money -= dec; }
     public int getPosition() { return position; }
     public void setPosition(int newPos) { position = newPos; }
-    public void increasePosition(int inc) { position += inc; position = position % 40; if (position == 0) { position = 1; } } 
+    public void increasePosition(int inc) { position += inc; position = position % 40; if (position == 0) { position = 1; } }
     public void addProperty(TileObject prop) { propertiesOwned.Add(prop); }
     public void removeProperty(TileObject prop) { propertiesOwned.Remove(prop); }
 
