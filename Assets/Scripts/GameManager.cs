@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 {
     public Dictionary<int, TileObject> board;
     private PlayerObject[] players;
-    private CardObject[] cards;
+    private KeyValuePair<string, LinkedList<CardObject>>[] cards;
     private int currentTurn; //will be used to get player at index currentTurn in the list
 
     private LinkedList<KeyValuePair<PlayerObject,int>> rollOrderList;
@@ -35,10 +35,11 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Will check if the criteria to end the game have been met
+    /// Will check if the criteria to end the game have been met, if so it will end the game
     /// </summary>
-    /// <returns>Returns true if only one player is left</returns>
-    public bool isGameFinished() { //call this whenever a player sets is Out to true?
+    public IEnumerator isGameFinished() { 
+        doneWait = false;
+        yield return new WaitUntil(() => doneWait == true);
         int playersStillIn = 0;
         for (int i = 0; i < players.Length; i++) {
             if (!players[i].getIsOut()) {
@@ -46,10 +47,9 @@ public class GameManager : MonoBehaviour
             }
         }
         if (playersStillIn == 1) {
-            return true; // have another method to show on UI that game is over
-        } else {
-            return false;
-        }
+            nextPlayerTurn();
+            uiManager.setUpGameOverUI(players[currentTurn]);
+        } 
     }
 
     /// <summary>
@@ -62,13 +62,70 @@ public class GameManager : MonoBehaviour
             board.Add(i, uiManager.getBoardTile(i - 1).GetComponent<TileObject>());
         }
 
-        //for the card file, auto read and create card object, card data and add to cards -- will make same card for now
-        //For now, only 10 cards exist
-        cards = new CardObject[10];
-        for (int i = 0; i < 10; i++) {
-            CardObject card = new CardObject();
-            card.setupCard(new CardData("get cash", "Oppertunity Knocks", CardActionEnum.PayBank, "10"));
-            cards[i] = card;
+        //Read the cards files
+        TextAsset oppertunityData = Resources.Load<TextAsset>("Excels/Opportunity Knocks");
+        TextAsset potData = Resources.Load<TextAsset>("Excels/Pot Luck");
+
+        //for the card file, auto read and create card object, card data and add to card
+        cards = new KeyValuePair<string, LinkedList<CardObject>>[2]; // there will only be 2 piles
+
+        cards[0] = new KeyValuePair<string, LinkedList<CardObject>>("Oppertunity Knocks", new LinkedList<CardObject>());
+        cards[1] = new KeyValuePair<string, LinkedList<CardObject>>("Pot Luck", new LinkedList<CardObject>());
+
+        foreach (TextAsset file in new TextAsset[2]{ oppertunityData,potData}) {
+            string[] read = file.text.Split(new char[] { '\n' });
+            for (int i = 1; i < read.Length - 1; i++) {
+                string[] row = read[i].Split(new char[] { ',' });
+                CardObject card = new CardObject();
+
+                CardActionEnum action;
+
+                switch (row[1]) {
+                    case "Bank pays player":
+                        action = CardActionEnum.BankPays;
+                        break;
+                    case "Player pays bank":
+                        action = CardActionEnum.PayBank;
+                        break;
+                    case "Player moves forwards":
+                        action = CardActionEnum.MoveForwards;
+                        break;
+                    case "Player moves backwards":
+                        action = CardActionEnum.MoveBackwards;
+                        break;
+                    case "Player moves forwards Collect GO":
+                        action = CardActionEnum.MoveForwardsGO;
+                        break;
+                    case "Player puts on free parking":
+                        action = CardActionEnum.PayParking;
+                        break;
+                    case "Go to jail":
+                        action = CardActionEnum.GoToJail;
+                        break;
+                    case "Get out of jail":
+                        action = CardActionEnum.GetOutOfJail;
+                        break;
+                    case "Player moves to GO":
+                        action = CardActionEnum.MoveForwardsGO;
+                        break;
+                    case "Player receives from each player":
+                        action = CardActionEnum.PlayersPay;
+                        break;
+                    default:
+                        action = CardActionEnum.PayBank;
+                        row[2] = "10";
+                        break;
+                }
+
+                // the fine paid or pick card will be problematic
+                if (file == oppertunityData) {
+                    card.setupCard(new CardData(row[0], "Oppertunity Knocks", action, row[2]));
+                    cards[0].Value.AddFirst(card);
+                } else {
+                    card.setupCard(new CardData(row[0], "Pot Luck", action, row[2]));
+                    cards[1].Value.AddFirst(card);
+                }
+            }
         }
 
         //somehow get inputs - from GMUI
@@ -85,17 +142,17 @@ public class GameManager : MonoBehaviour
             string[] row = data[i].Split(new char[] { ',' });
 
             Dictionary<RentTypeEnum, int> propRentData = new Dictionary<RentTypeEnum, int>();
-            if (!row[2].Equals("")) {
+            if (!row[2].Equals("")) {//Houses
                 propRentData.Add(RentTypeEnum.Unimproved,Int32.Parse(row[2]));
                 propRentData.Add(RentTypeEnum.OneHouse, Int32.Parse(row[3]));
                 propRentData.Add(RentTypeEnum.TwoHouses, Int32.Parse(row[4]));
                 propRentData.Add(RentTypeEnum.ThreeHouses, Int32.Parse(row[5]));
                 propRentData.Add(RentTypeEnum.FourHouses, Int32.Parse(row[6]));
                 propRentData.Add(RentTypeEnum.OneHotel, Int32.Parse(row[7]));
-            }else if (!row[8].Equals("")) {
+            }else if (!row[8].Equals("")) {//Utilities
                 propRentData.Add(RentTypeEnum.OneUtility, Int32.Parse(row[8]));
                 propRentData.Add(RentTypeEnum.TwoUtilities, Int32.Parse(row[9]));
-            }else if (!row[10].Equals("")) {
+            }else if (!row[10].Equals("")) {//Stations
                 propRentData.Add(RentTypeEnum.OneStation, Int32.Parse(row[10]));
                 propRentData.Add(RentTypeEnum.TwoStations, Int32.Parse(row[11]));
                 propRentData.Add(RentTypeEnum.ThreeStations, Int32.Parse(row[12]));
@@ -148,7 +205,38 @@ public class GameManager : MonoBehaviour
             TextMesh[] texts = obj.GetComponentsInChildren<TextMesh>();
             if (newData.getCanBeOwned()) {
                 texts[0].text = newData.getName();
-                texts[1].text = ((PropertyData)newData).getPurchasePrice().ToString();
+                texts[1].text = ((PropertyData)newData).getPurchasePrice().ToString();///move to GMUI?
+                foreach (MeshRenderer render in obj.GetComponentsInChildren<MeshRenderer>()) { 
+                    if (render.name=="Cube (1)") {
+                        render.material = new Material(Shader.Find("Custom/NewSurfaceShader"));
+                        switch (((PropertyData)newData).getColour()) {
+                            case "Yellow":
+                                render.material.SetColor("_Color", Color.yellow);
+                                break;
+                            case "Purple":
+                                render.material.SetColor("_Color", new Color(0.56f, 0f, 0.99f, 1)); //PURPLE
+                                break;
+                            case "Brown":
+                                render.material.SetColor("_Color", new Color(0.52f, 0.26f, 0.06f, 1)); //BROWN
+                                break;
+                            case "Blue":
+                                render.material.SetColor("_Color", Color.cyan);
+                                break;
+                            case "Orange":
+                                render.material.SetColor("_Color", new Color(0.99f, 0.63f, 0f, 1)); //ORANGE
+                                break;
+                            case "Red":
+                                render.material.SetColor("_Color", Color.red);
+                                break;
+                            case "Green":
+                                render.material.SetColor("_Color", Color.green);
+                                break;
+                            case "Deep blue":
+                                render.material.SetColor("_Color", Color.blue);
+                                break;
+                        }
+                    }
+                }
             } else if (texts.Length > 0) { //Not a corner tile
                 texts[0].text = newData.getName();
                 texts[1].text = "";
@@ -215,12 +303,12 @@ public class GameManager : MonoBehaviour
     /// Checks the numbers rolled by the player, moves or jails them
     /// </summary>
     private void checkRoll() {
-
-        if (rollBuffer[2] != 0 && diceManager.getIsDouble()) { //jailed
+        if (rollBuffer[2] != 0 && diceManager.getIsDouble()) { //sent to jail
             foreach (TileObject tile in board.Values) { //have a var set as the jail tile?
                 if (tile.getData().getTileAction() == TileActionEnum.Jail) {
                     //    sent to jail -- for now setPosition();
                     players[currentTurn].setPosition(tile.getData().getPosition());
+                    uiManager.setUpPopupUI(players[currentTurn] + " is jailed");
                     //call UI movements etc.
                     break;
                 }
@@ -337,25 +425,28 @@ public class GameManager : MonoBehaviour
         switch (board[player.getPosition()].getData().getTileAction()) {
             case TileActionEnum.CollectGO:
             case TileActionEnum.CollectFines:
-                //player.increaseMoney(Int32.Parse(((NonPropData)board[player.getPosition()].getData()).getTileActionValue()));
+                player.increaseMoney(Int32.Parse(((NonPropData)board[player.getPosition()].getData()).getTileActionValue()));
+                uiManager.setUpPopupUI(player.getPlayerName() + " gained £" + ((NonPropData)board[player.getPosition()].getData()).getTileActionValue());
                 break;
             case TileActionEnum.PayTax:
-                //parkingPayment(player, Int32.Parse(((NonPropData)board[player.getPosition()].getData()).getTileActionValue()));
+                parkingPayment(player, Int32.Parse(((NonPropData)board[player.getPosition()].getData()).getTileActionValue()));
+                uiManager.setUpPopupUI(player.getPlayerName() + " payed £" + ((NonPropData)board[player.getPosition()].getData()).getTileActionValue() + " in taxes");
                 break;
             case TileActionEnum.PickCard:
-                //playCardAction(player);
+                playCardAction(player);
                 break;
             case TileActionEnum.Rent:
-                //check if is owned, and if is then call playerpayment, and check if can afford in there?
-                if (board[player.getPosition()].getData().getOwner() != null) {
+                if (board[player.getPosition()].getData().getOwner() != null && board[player.getPosition()].getData().getOwner() != player) {
                     playerPayment(player, board[player.getPosition()].getData().getOwner(), ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice());
-                } else {
+                    uiManager.setUpPopupUI(player.getPlayerName() + " payed " + board[player.getPosition()].getData().getOwner().getPlayerName() + " £" + ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice() 
+                        + " for landing on " + board[player.getPosition()].getData().getName());
+                } else if(board[player.getPosition()].getData().getOwner() != player) {
                     uiManager.setupPurchaseUI((PropertyData)board[player.getPosition()].getData());
                     uiManager.setOn(uiManager.getPurchaseUIObj());
                     uiManager.setOff(uiManager.getEndTurnBtn());
                 }
                 break;
-            case TileActionEnum.Jail: //have someway of tracking turns spent in jail etc.
+            case TileActionEnum.Jail: 
                 break;
         }
     }
@@ -365,9 +456,21 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <param name="player">Current player</param>
     public void playCardAction(PlayerObject player) {
-        int cardNo = UnityEngine.Random.Range(0, cards.Length);
-        CardObject card = cards[cardNo];
-        //play UI
+        //make sure to get a card from correct pile
+        CardObject card;
+        if (board[player.getPosition()].getData().getName() == "Pot Luck") { //get a card and put at back of pile
+            card = cards[1].Value.First.Value;
+            cards[1].Value.RemoveFirst();
+            cards[1].Value.AddLast(card);
+        } else {
+            card = cards[0].Value.First.Value;
+            cards[0].Value.RemoveFirst();
+            cards[0].Value.AddLast(card);
+        }
+
+        int val;
+
+        //play UI of pick up ?
         switch (card.getData().getActionType()) {
             case CardActionEnum.GoToJail:
                 foreach (TileObject tile in board.Values) {
@@ -380,25 +483,85 @@ public class GameManager : MonoBehaviour
                 break;
             case CardActionEnum.GetOutOfJail:
                 break; //for now nothing as one cannot be jailed
-            case CardActionEnum.MoveForwards: //there may need to be more Enum types to differentiate the type of movement e.g. nearest vs set dest.
+            case CardActionEnum.MoveForwards:
+                if (!Int32.TryParse(card.getData().getCardActionValue(), out val)) {
+                    foreach (TileObject tile in board.Values) {
+                        if (tile.getData().getName() == card.getData().getCardActionValue()) {
+                            player.setPosition(tile.getData().getPosition());
+                            //call UI movements etc.
+                            break;
+                        }
+                    }
+                } else {
+                    player.increasePosition(val);
+                }
                 break;
             case CardActionEnum.MoveBackwards:
-                break;//same as forward, need more specifications?
+                if (!Int32.TryParse(card.getData().getCardActionValue(), out val)) {
+                    foreach (TileObject tile in board.Values) {
+                        if (tile.getData().getName() == card.getData().getCardActionValue()) {
+                            player.setPosition(tile.getData().getPosition());
+                            //call UI movements etc.
+                            break;
+                        }
+                    }
+                } else {
+                    player.increasePosition(-val);
+                }
+                break;
             case CardActionEnum.PayBank:
-                bankPayment(player, Int32.Parse(card.getData().getCardActionValue())); //& play relevant UI
+                bankPayment(player, -Int32.Parse(card.getData().getCardActionValue())); //& play relevant UI
                 break;
             case CardActionEnum.PayParking:
                 parkingPayment(player, Int32.Parse(card.getData().getCardActionValue())); //& play relevant UI
                 break;
             case CardActionEnum.PlayersPay: //Only other players paying this player
                 int i = 0;
-                while (i < players.Length) {
+                while (i < players.Length) {//might cause issues if go bankrupt halfway through
                     if (player != players[i]) {
                         playerPayment(player, players[i], Int32.Parse(card.getData().getCardActionValue()));
                     }
                 }
                 break;
+            case CardActionEnum.MoveToGo:
+                foreach (TileObject tile in board.Values) {
+                    if (tile.getData().getTileAction() == TileActionEnum.CollectGO) {
+                        player.setPosition(tile.getData().getPosition());
+                        //call UI movements etc.
+                        break;
+                    }
+                }
+                break;
+            case CardActionEnum.MoveForwardsGO:
+                int prevPos = player.getPosition();
+                if (!Int32.TryParse(card.getData().getCardActionValue(), out val)) {
+                    foreach (TileObject tile in board.Values) {
+                        if (tile.getData().getName() == card.getData().getCardActionValue()) {
+                            player.setPosition(tile.getData().getPosition());
+                            //call UI movements etc.
+                            break;
+                        }
+                    }
+                } else {
+                    player.increasePosition(val);
+                }
+
+                if (prevPos > player.getPosition()) {
+                    foreach (TileObject tile in board.Values) {
+                        if (tile.getData().getTileAction() == TileActionEnum.CollectGO) {
+                            player.increaseMoney(Int32.Parse(((NonPropData)tile.getData()).getTileActionValue()));
+                            uiManager.setUpPopupUI(player.getPlayerName() + " gained £" + ((NonPropData)tile.getData()).getTileActionValue());
+                            break;
+                        }
+                    }
+                }
+                break;
+            case CardActionEnum.BankPays:
+                bankPayment(player, Int32.Parse(card.getData().getCardActionValue()));
+                break;
         }
+        
+        uiManager.setUpPopupUI(card.getData().getPile() + "\n" + card.getData().getName());
     }
 
     /// <summary>
@@ -411,8 +574,11 @@ public class GameManager : MonoBehaviour
         if (from.getMoney() >= amount) {
             from.decreaseMoney(amount);
             to.increaseMoney(amount);
+            uiManager.setUpPopupUI(from.getPlayerName() + " payed " + to.getPlayerName() + " £" + amount);
         } else {
+            uiManager.setUpPopupUI(from.getPlayerName() + " is out of the game");
             from.setIsOut(true);
+            StartCoroutine(isGameFinished());
         }
     }
 
@@ -424,11 +590,15 @@ public class GameManager : MonoBehaviour
     public void bankPayment(PlayerObject player, int amount) {
         if (amount > 0) {
             player.increaseMoney(amount);
+            uiManager.setUpPopupUI(player.getPlayerName() + " is payed £" + amount);
         } else {
             if (player.getMoney() > amount) {
                 player.decreaseMoney(amount);
+                uiManager.setUpPopupUI(player.getPlayerName() + " lost £" + amount);
             } else {
+                uiManager.setUpPopupUI(player.getPlayerName() + " is out of the game");
                 player.setIsOut(true);
+                StartCoroutine(isGameFinished());
             }
         }
     }
@@ -443,16 +613,17 @@ public class GameManager : MonoBehaviour
         if (player.getMoney() > amount) {
             player.decreaseMoney(amount);
         } else {
+            uiManager.setUpPopupUI(player.getPlayerName() + " is out of the game");
             player.setIsOut(true);
+            StartCoroutine(isGameFinished());
         }
 
 
         //find the parking space - or the first one
         foreach (TileObject tile in board.Values) {
             if (tile.getData().getTileAction() == TileActionEnum.CollectFines) {
-                Debug.Log(((NonPropData)tile.getData()).getTileActionValue());
                 //get the current fines on the space and increase it
-                ((NonPropData)tile.getData()).setTileActionValue((Int32.Parse(((NonPropData)tile.getData()).getTileActionValue())+amount).ToString());
+                ((NonPropData)tile.getData()).setTileActionValue((Int32.Parse(((NonPropData)tile.getData()).getTileActionValue())+amount).ToString()); //dont increase if cant afford
             }
         }
     }

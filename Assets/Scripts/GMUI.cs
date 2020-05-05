@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
@@ -16,6 +17,8 @@ public class GMUI : MonoBehaviour{
 
     public GameObject purchasePropUI;
 
+    public GameObject popupObj;
+
     //PlayerInfo UI
     public GameObject[] tabs;
     public GameObject infoPrefab;
@@ -31,11 +34,16 @@ public class GMUI : MonoBehaviour{
     public GameObject[] addedPlayerUI = new GameObject[6];
     public GameObject addPlayerUI;
 
-    //Board&CardsUI
-    //public GameObject[] dataInpUI = new GameObject[2]; //For now, only Board and rent is read?
+    //GameOver UI
+    public GameObject gameOverUI;
+    public Text winnerName;
+    public Text winnerWorth;
 
     //Camera Positions
     public Transform aboveView;
+
+    //Other
+    public Shader standardShader;
 
     /// <summary>
     /// Initialise variables
@@ -186,6 +194,15 @@ public class GMUI : MonoBehaviour{
     }
 
     /// <summary>
+    /// Shows a popup with text to let the user know what happened
+    /// </summary>
+    /// <param name="text">The text to show</param>
+    public void setUpPopupUI(String text) {
+        popupObj.SetActive(true);
+        popupObj.GetComponentInChildren<Text>().text = text;
+    }
+
+    /// <summary>
     /// Set the options of the pieces a player can choose to those in the PiecesTypeEnum class
     /// </summary>
     private void setDropdownOptions() { //make it get from an array, from which things get removed and added
@@ -195,6 +212,12 @@ public class GMUI : MonoBehaviour{
             addPlayerUI.GetComponentInChildren<Dropdown>().options.Add(new Dropdown.OptionData() { text = piece });
         }
         
+    }
+
+    public void setUpGameOverUI(PlayerObject winner) {
+        gameOverUI.SetActive(true);
+        winnerName.text = winner.getPlayerName();
+        winnerWorth.text = "£" + winner.getMoney();
     }
 
     public void setOff(GameObject setOff) { setOff.SetActive(false);}
@@ -221,4 +244,10 @@ public class GMUI : MonoBehaviour{
     public GameObject getPurchaseUIObj() { return purchasePropUI; }
 
     public GameObject getPlayerInfoBtn() { return playerInfoBtn; }
+
+    public void restart() { SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
+
+    public void mainMenu() { SceneManager.LoadScene("Menu"); }
+
+    public Shader getShader() { return standardShader; }
 }
