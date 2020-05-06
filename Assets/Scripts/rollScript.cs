@@ -75,7 +75,7 @@ public class rollScript : MonoBehaviour
     /// <returns>Returns the force created</returns>
     private Vector3 Force()
     {
-        Vector3 rollTarget = Vector3.zero + new Vector3(2 + 4 * Random.value, .5F + 4 * Random.value, -2 - 3 * Random.value);
+        Vector3 rollTarget = new Vector3(3 * Random.Range(-1, 1), 0.1f * Random.Range(-1, 1), 3 * Random.Range(-1, 1));
         return Vector3.Lerp(spawnPoint.transform.position, rollTarget, 1).normalized * (-35 - Random.value * 20);
     }
 

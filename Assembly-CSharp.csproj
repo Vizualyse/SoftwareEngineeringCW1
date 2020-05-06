@@ -77,6 +77,7 @@
     <Compile Include="Assets\Scripts\PiecesEnum.cs" />
     <Compile Include="Assets\Scripts\PlayMenu.cs" />
     <Compile Include="Assets\Scripts\PlayerObject.cs" />
+    <Compile Include="Assets\Scripts\PlayerPieces.cs" />
     <Compile Include="Assets\Scripts\PropertyData.cs" />
     <Compile Include="Assets\Scripts\QuitToMenu.cs" />
     <Compile Include="Assets\Scripts\RentTypeEnum.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
+    <None Include="Assets\Resources\Pieces\Smartphone\StandardColorMask.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />

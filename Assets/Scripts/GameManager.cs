@@ -302,6 +302,9 @@ public class GameManager : MonoBehaviour
             players[i] = player;
         }
         uiManager.setCurPlayerText(players[0].getPlayerName());
+
+        PlayerPieces playerPieces = GameObject.Find("GM").GetComponent<PlayerPieces>();
+        playerPieces.Init();
     }
 
     /// <summary>

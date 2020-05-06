@@ -18,7 +18,7 @@ public class TileThemeOverride : MonoBehaviour
         GameObject[] boardTiles = gmui.boardTiles;
 
         List<int> cornerTiles = new List<int>(new int[] { 1, 11, 21, 31 });
-        List<int> stations = new List<int>(new int[]{ 6, 16, 26, 36 });
+        List<int> stations = new List<int>(new int[] { 6, 16, 26, 36 });
         List<int> utilities = new List<int>(new int[] { 13, 29 });
         List<int> cardTiles = new List<int>(new int[] { 3, 8, 18, 23, 34, 37 });
         List<int> taxTiles = new List<int>(new int[] { 39, 5 });
@@ -65,7 +65,7 @@ public class TileThemeOverride : MonoBehaviour
                     g.transform.GetChild(2).localPosition = new Vector3(1.132f, 1, 1);
                     break;
 
-                case string a when cornerTiles.Contains(int.Parse(tileNo))  :   break;
+                case string a when cornerTiles.Contains(int.Parse(tileNo)): break;
 
                 default:
                     name.text = name.text.Replace(" ", "\n");
@@ -76,8 +76,8 @@ public class TileThemeOverride : MonoBehaviour
                     price.fontSize = priceFont;
                     break;
             }
-            
-            
+
+
         }
     }
 }
