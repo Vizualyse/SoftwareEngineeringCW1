@@ -1,0 +1,29 @@
+﻿Position,Name,Rent,1 house,2 houses,3 houses ,4 houses ,1 hotel,1Utility,2Utilities,1Station,2Stations,3Stations,4Stations
+2,Crapper Str ,2,10,30,90,160,250,,,,,,
+4,Gangsters Paradise,4,20,60,180,320,450,,,,,,
+6,Brighton Station,,,,,,,,,25,50,100,200
+7,Weeping Angel,6,30,90,270,400,550,,,,,,
+9,Potts Avenue,6,30,90,270,400,550,,,,,,
+10,Nardole Drive,8,40,100,300,450,600,,,,,,
+12,Skywalker Drive,10,50,150,450,625,750,,,,,,
+13,Tesla Power Co,,,,,,,4,10,,,,
+14,Wookie Hole,10,50,150,450,625,750,,,,,,
+15,Rey Lane,12,60,180,500,700,900,,,,,,
+16,Hove Station,,,,,,,,,25,50,100,200
+17,Copper Drive,14,70,200,550,750,950,,,,,,
+19,Wolowitz Street,14,70,200,550,750,950,,,,,,
+20,Penny Lane,16,80,220,600,800,1000,,,,,,
+22,Yue Fei Square,18,90,250,700,875,1050,,,,,,
+24,Mulan Rouge,18,90,250,700,875,1050,,,,,,
+25,Han Xin Gardens,20,100,300,750,925,1100,,,,,,
+26,Falmer Station,,,,,,,,,25,50,100,200
+27,Kirk Close,22,110,330,800,975,1150,,,,,,
+28,Picard Avenue,22,110,330,800,975,1150,,,,,,
+29,Edison Water,,,,,,,4,10,,,,
+30,Crusher Creek,22,120,360,850,1025,1200,,,,,,
+32,Sirat Mews,26,130,390,900,1100,1275,,,,,,
+33,Ghengis Crescent,26,130,390,900,1100,1275,,,,,,
+35,Ibis Close,28,150,450,1000,1200,1400,,,,,,
+36,Lewes Station,,,,,,,,,25,50,100,200
+38,Hawking Way,35,175,500,1100,1300,1500,,,,,,
+40,Turing Heights,50,200,600,1400,1700,2000,,,,,,

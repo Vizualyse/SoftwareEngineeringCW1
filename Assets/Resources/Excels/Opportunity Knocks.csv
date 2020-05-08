@@ -1,0 +1,17 @@
+﻿Desctiption,Action,Value
+"""Bank pays you divided of £50""",Bank pays player,50
+"""You have won a lip sync battle. Collect £100""",Bank pays player,100
+"""Advance to Turing Heights""",Player moves forwards,Turing Heights
+"""Advance to Han Xin Gardens. If you pass GO, collect £200""",Player moves forwards Collect GO,Han Xin Garden
+"""Fined £15 for speeding""",Player puts on free parking,15
+"""Pay university fees of £150""",Player pays bank,150
+"""Take a trip to Hove station. If you pass GO collect £200""",Player moves forwards Collect GO,Hove Station
+"""Loan matures, collect £150""",Bank pays player,150
+"""You are assessed for repairs, £40/house, £115/hotel""",Player pays bank,0
+"""Advance to GO""",Player moves to GO,Go
+"""You are assessed for repairs, £25/house, £100/hotel""",Player pays bank,0
+"""Go back 3 spaces""",Player moves backwards,3
+"""Advance to Skywalker Drive. If you pass GO collect £200""",Player moves forwards Collect GO,Skywalker Drive
+"""Go to jail. Do not pass GO, do not collect £200""",Go to Jail,GoToJail
+"""Drunk in charge of a skateboard. Fine £20""",Player puts on free parking,20
+"""Get out of jail free""",Get out of jail,GetOutOfJail
