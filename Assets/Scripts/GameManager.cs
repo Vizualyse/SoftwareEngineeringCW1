@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -197,10 +198,14 @@ public class GameManager : MonoBehaviour
                 {
                     action = TileActionEnum.CollectGO;
                 }
-                else if (row[3].Equals("Go to jail"))
+                else if (row[3].Equals("Jail"))
                 {
                     action = TileActionEnum.Jail;
-                }
+                } 
+                else if (row[3].Equals("Go to jail")) 
+                {
+                    action = TileActionEnum.GoToJail;
+                } 
                 else if (row[3].Equals("Take card"))
                 {
                     action = TileActionEnum.PickCard;
@@ -315,6 +320,7 @@ public class GameManager : MonoBehaviour
         if (player.getMoney() >= ((PropertyData)board[player.getPosition()].getData()).getPurchasePrice())
         {
             player.decreaseMoney(((PropertyData)board[player.getPosition()].getData()).getPurchasePrice());
+            updateProperties(player, board[player.getPosition()]);
             player.addProperty(board[player.getPosition()]);
             board[player.getPosition()].getData().setOwner(player);
         }
@@ -333,6 +339,7 @@ public class GameManager : MonoBehaviour
         if (player.getMoney() >= ((PropertyData)board[player.getPosition()].getData()).getPurchasePrice())
         {
             player.decreaseMoney(((PropertyData)board[player.getPosition()].getData()).getPurchasePrice());
+            updateProperties(player, board[player.getPosition()]);
             player.addProperty(board[player.getPosition()]);
             board[player.getPosition()].getData().setOwner(player);
         }
@@ -355,31 +362,27 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks the numbers rolled by the player, moves or jails them
+    /// Checks the numbers rolled by the player, moves or jails them - for the last roll of a player i.e not on 1st or 2nd double
     /// </summary>
     private void checkRoll()
     {
-        if (rollBuffer[2] != 0 && diceManager.getIsDouble())
-        { //sent to jail
-            foreach (TileObject tile in board.Values)
-            { //have a var set as the jail tile?
-                if (tile.getData().getTileAction() == TileActionEnum.Jail)
-                {
-                    //    sent to jail -- for now setPosition();
-                    players[currentTurn].setPosition(tile.getData().getPosition());
-                    uiManager.setUpPopupUI(players[currentTurn] + " is jailed");
-                    //call UI movements etc.
+        if (rollBuffer[2] != 0 && diceManager.getIsDouble()) { //sent to jail
+            moveToJail(players[currentTurn]);
+        } else { //legal roll
+            switch (rollType) {
+                case 1:
+                    movePlayer(players[currentTurn], rollBuffer[0]);
                     break;
-                }
-            }
+                case 2:
+                    movePlayer(players[currentTurn], rollBuffer[1]);
+                    break;
+                case 3:
+                    movePlayer(players[currentTurn], rollBuffer[2]);
+                    break;
         }
-        else
-        { //legal roll
-            int posBefore = players[currentTurn].getPosition();
-            players[currentTurn].increasePosition(rollBuffer[0] + rollBuffer[1] + rollBuffer[2]);
-            if(posBefore > players[currentTurn].getPosition() && players[currentTurn].getPosition() > 1) { collectGo(players[currentTurn]); }
         }
         for (int i = 0; i < rollBuffer.Length; i++) { rollBuffer[i] = 0; }
+        rollType = 1;
         if (rollType > 0) { runTileAction(); }
         uiManager.setOn(uiManager.getEndTurnBtn());
     }
@@ -389,7 +392,6 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private IEnumerator waitDiceRolls()
     {
-
         //have method in GMUI to disable and enable roll & endTurn specifically and add them here
         doneWait = false;
         yield return new WaitUntil(() => doneWait == true);
@@ -431,6 +433,7 @@ public class GameManager : MonoBehaviour
                 if (diceManager.getIsDouble())
                 {
                     rollType = 2;
+                    movePlayer(players[currentTurn], rollBuffer[0]);
                     doneWait = false;
                     runTileAction();
                     yield return new WaitUntil(() => doneWait == true);
@@ -439,7 +442,6 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    rollType = 1;
                     checkRoll();
                 }
                 break;
@@ -451,6 +453,7 @@ public class GameManager : MonoBehaviour
                 }
                 if (diceManager.getIsDouble()) 
                     {
+                    movePlayer(players[currentTurn], rollBuffer[1]);
                     doneWait = false;
                     runTileAction();
                     yield return new WaitUntil(() => doneWait == true);
@@ -460,7 +463,6 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    rollType = 1;
                     checkRoll();
                 }
                 break;
@@ -470,7 +472,6 @@ public class GameManager : MonoBehaviour
                 } else {
                     rollBuffer[2] = diceManager.getRollNo();
                 }
-                rollType = 1;
                 checkRoll();
                 break;
         }
@@ -517,7 +518,6 @@ public class GameManager : MonoBehaviour
             currentTurn = (currentTurn + 1) % players.Length;
         }
 
-        uiManager.setOn(uiManager.getEndTurnBtn()); //?
         uiManager.setCurPlayerText(players[currentTurn].getPlayerName());
     }
 
@@ -545,9 +545,7 @@ public class GameManager : MonoBehaviour
             case TileActionEnum.Rent:
                 if (board[player.getPosition()].getData().getOwner() != null && board[player.getPosition()].getData().getOwner() != player)
                 {
-                    playerPayment(player, board[player.getPosition()].getData().getOwner(), ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice());
-                    uiManager.setUpPopupUI(player.getPlayerName() + " payed " + board[player.getPosition()].getData().getOwner().getPlayerName() + " £" + ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice()
-                        + " for landing on " + board[player.getPosition()].getData().getName());
+                    chargeRent(player);
                 }
                 else if (board[player.getPosition()].getData().getOwner() != player)
                 {
@@ -556,7 +554,8 @@ public class GameManager : MonoBehaviour
                     uiManager.setOff(uiManager.getEndTurnBtn());
                 }
                 break;
-            case TileActionEnum.Jail:
+            case TileActionEnum.GoToJail:
+                moveToJail(player);
                 break;
         }
         doneWait = true;
@@ -589,15 +588,7 @@ public class GameManager : MonoBehaviour
         switch (card.getData().getActionType())
         {
             case CardActionEnum.GoToJail:
-                foreach (TileObject tile in board.Values)
-                {
-                    if (tile.getData().getTileAction() == TileActionEnum.Jail)
-                    {
-                        player.setPosition(tile.getData().getPosition());
-                        //call UI movements etc.
-                        break;
-                    }
-                }
+                moveToJail(player);
                 break;
             case CardActionEnum.GetOutOfJail:
                 break; //for now nothing as one cannot be jailed
@@ -799,11 +790,129 @@ public class GameManager : MonoBehaviour
     /// <returns>Returns the players</returns>
     public PlayerObject[] getPlayers() { return players; }
 
+
+    /// <summary>
+    /// Collect Go money for player
+    /// </summary>
+    /// <param name="player">Player collecting Go</param>
     public void collectGo(PlayerObject player) {
         foreach (TileObject tile in board.Values) {
             if (tile.getData().getTileAction() == TileActionEnum.CollectGO) {
                 player.increaseMoney(Int32.Parse(((NonPropData)tile.getData()).getTileActionValue()));
                 uiManager.setUpPopupUI(player.getPlayerName() + " gained £" + ((NonPropData)tile.getData()).getTileActionValue());
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Charges the appropriate amount depending on the type of property
+    /// </summary>
+    /// <param name="player">The player getting charged rent</param>
+    public void chargeRent(PlayerObject player) {
+        int amount = 0;
+        switch (((PropertyData)board[player.getPosition()].getData()).getCurrentRentType()) {
+            case RentTypeEnum.Unimproved:
+            case RentTypeEnum.OneHouse:
+            case RentTypeEnum.TwoHouses:
+            case RentTypeEnum.ThreeHouses:
+            case RentTypeEnum.FourHouses:
+            case RentTypeEnum.OneHotel:
+            case RentTypeEnum.OneStation:
+            case RentTypeEnum.TwoStations:
+            case RentTypeEnum.ThreeStations:
+            case RentTypeEnum.FourStations:
+                amount = ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice();
+                break;
+            case RentTypeEnum.OneUtility:
+            case RentTypeEnum.TwoUtilities:
+                amount = ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice() * (rollBuffer[0] + rollBuffer[1] + rollBuffer[2]);
+                break;
+        }
+
+        playerPayment(player, board[player.getPosition()].getData().getOwner(), ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice());
+        uiManager.setUpPopupUI(player.getPlayerName() + " payed " + board[player.getPosition()].getData().getOwner().getPlayerName() + " £" + amount
+            + " for landing on " + board[player.getPosition()].getData().getName());
+    }
+
+    public void updateProperties(PlayerObject player, TileObject tile) {
+        bool updated = false;
+        switch (((PropertyData)tile.getData()).getCurrentRentType()) {
+            case RentTypeEnum.Unimproved:
+            case RentTypeEnum.OneHouse:
+            case RentTypeEnum.TwoHouses:
+            case RentTypeEnum.ThreeHouses:
+            case RentTypeEnum.FourHouses:
+            case RentTypeEnum.OneHotel:
+                //check if all of a group have been bought - if so charge more?
+                break;
+            case RentTypeEnum.OneStation:
+            case RentTypeEnum.TwoStations:
+            case RentTypeEnum.ThreeStations:
+            case RentTypeEnum.OneUtility:
+                foreach (TileObject tileObj in player.getPropertiesOwned()) {
+                    if (((PropertyData)tileObj.getData()).getCurrentRentType() == ((PropertyData)tile.getData()).getCurrentRentType()) {
+                        switch (((PropertyData)tileObj.getData()).getCurrentRentType()) {
+                            case RentTypeEnum.OneStation:
+                                ((PropertyData)tileObj.getData()).setCurrentRentType(RentTypeEnum.TwoStations);
+                                updated = true;
+                                break;
+                            case RentTypeEnum.TwoStations:
+                                ((PropertyData)tileObj.getData()).setCurrentRentType(RentTypeEnum.ThreeStations);
+                                updated = true;
+                                break;
+                            case RentTypeEnum.ThreeStations:
+                                ((PropertyData)tileObj.getData()).setCurrentRentType(RentTypeEnum.FourStations);
+                                updated = true;
+                                break;
+                            case RentTypeEnum.OneUtility:
+                                ((PropertyData)tileObj.getData()).setCurrentRentType(RentTypeEnum.TwoUtilities);
+                                updated = true;
+                                break;
+                        }
+                    }
+                }
+                if (updated) {
+                    switch(((PropertyData)tile.getData()).getCurrentRentType()) {
+                        case RentTypeEnum.OneStation:
+                            ((PropertyData)tile.getData()).setCurrentRentType(RentTypeEnum.TwoStations);
+                            break;
+                        case RentTypeEnum.TwoStations:
+                            ((PropertyData)tile.getData()).setCurrentRentType(RentTypeEnum.ThreeStations);
+                            break;
+                        case RentTypeEnum.ThreeStations:
+                            ((PropertyData)tile.getData()).setCurrentRentType(RentTypeEnum.FourStations);
+                            break;
+                        case RentTypeEnum.OneUtility:
+                            ((PropertyData)tile.getData()).setCurrentRentType(RentTypeEnum.TwoUtilities);
+                            break;
+                    }
+                }
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Move the player by a certain number of spaces
+    /// </summary>
+    /// <param name="player">Player to be moved</param>
+    /// <param name="spaces">Spaces to be moved</param>
+    public void movePlayer(PlayerObject player, int spaces) {
+        int posBefore = players[currentTurn].getPosition();
+        players[currentTurn].increasePosition(spaces);
+        if (posBefore > players[currentTurn].getPosition() && players[currentTurn].getPosition() > 1) { collectGo(players[currentTurn]); }
+    }
+
+    /// <summary>
+    /// moves the player to the jail tile
+    /// </summary>
+    /// <param name="player">The player being moved</param>
+    public void moveToJail(PlayerObject player) {
+        foreach (TileObject tile in board.Values) {
+            if (tile.getData().getTileAction() == TileActionEnum.Jail) {
+                //    sent to jail -- for now setPosition();
+                players[currentTurn].setPosition(tile.getData().getPosition());
+                uiManager.setUpPopupUI(players[currentTurn] + " is moved to jailed");
                 break;
             }
         }

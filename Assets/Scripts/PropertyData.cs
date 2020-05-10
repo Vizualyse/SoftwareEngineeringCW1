@@ -37,4 +37,8 @@ public class PropertyData : TileData
     /// </summary>
     /// <returns>REturns the current price</returns>
     public int getCurrentRentPrice() { return rentCharges[currentRent]; }
+
+    public RentTypeEnum getCurrentRentType() { return currentRent; }
+
+    public void setCurrentRentType(RentTypeEnum newType) { currentRent = newType; }
 }
