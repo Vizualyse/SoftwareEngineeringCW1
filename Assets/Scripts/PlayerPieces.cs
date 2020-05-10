@@ -38,16 +38,8 @@ public class PlayerPieces : MonoBehaviour
     public GameObject Prefab(PiecesEnum name, int playerNo)
     {
         Object pf = null;
-        switch (name)
-        {
-            case PiecesEnum.Hatstand:
-                break;
-            case PiecesEnum.Goblet:
-                break;
-            default:
-                pf = Resources.Load("Pieces/" + name);
-                break;
-        }
+        pf = Resources.Load("Pieces/" + name);
+         
          
         if (pf != null)
         {
@@ -74,6 +66,16 @@ public class PlayerPieces : MonoBehaviour
                         inst.transform.localScale = new Vector3(3, 3, 3);
                         inst.transform.Rotate(new Vector3(0, -90, 0));
                         piecesRotations[playerNo] = -90;
+                        break;
+                    case PiecesEnum.Goblet:
+                        inst.transform.localScale = new Vector3(5,5,5);
+                        inst.transform.Rotate(new Vector3(0, 0, 0));
+                        piecesRotations[playerNo] = 90;
+                        break;
+                    case PiecesEnum.Hatstand:
+                        inst.transform.localScale = new Vector3(15,15,15);
+                        inst.transform.Rotate(new Vector3(0, 0, 0));
+                        piecesRotations[playerNo] = 90;
                         break;
                     default:
                         inst.transform.localScale = new Vector3(5, 5, 5);
@@ -211,7 +213,6 @@ public class PlayerPieces : MonoBehaviour
         Vector3 stop;
         for (int i = 0; i < midpoints.Count + 1; i++)
         {
-            Debug.Log(i);
             if (begin.Equals(Vector3.zero)) {
                 begin = start;
             }

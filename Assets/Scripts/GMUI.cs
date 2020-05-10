@@ -90,6 +90,17 @@ public class GMUI : MonoBehaviour
                 }
             }
         }
+
+        int i = 0;
+        while (tabs[i].activeSelf && i <= tabs.Length - 1) {
+            GameObject header = tabs[i].transform.Find("Background/Active").gameObject;
+            if (i == index) {
+                header.SetActive(false);
+            } else {
+                header.SetActive(true) ;
+            }
+            i++;
+        }
     }
 
     /// <summary>
@@ -126,6 +137,7 @@ public class GMUI : MonoBehaviour
             }
             else
             {
+                if (i == 0) { tabs[i].transform.Find("Background/Active").gameObject.SetActive(false); }
                 tabs[i].GetComponentInChildren<Text>().text = players[i].getPlayerName();
             }
         }

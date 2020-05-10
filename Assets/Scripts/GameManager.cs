@@ -123,6 +123,7 @@ public class GameManager : MonoBehaviour
                     default:
                         action = CardActionEnum.PayBank;
                         row[2] = "10";
+                        row[0] = "Payed too many taxes, get money from the bank";
                         break;
                 }
 
@@ -298,13 +299,11 @@ public class GameManager : MonoBehaviour
         {
             PlayerObject player = new PlayerObject(); //this will hold reference to its own UI, use prefabs? one for each piece
             string[] data = playerData[i].GetComponentInChildren<Text>().text.Split(new string[] { " as: " }, StringSplitOptions.None);
-            player.setupPlayer(data[0], (PiecesEnum)Enum.Parse(typeof(PiecesEnum), data[1]), 1500, 0);
+            player.setupPlayer(data[0], (PiecesEnum)Enum.Parse(typeof(PiecesEnum), data[1]), 1500, 1);
             players[i] = player;
         }
         uiManager.setCurPlayerText(players[0].getPlayerName());
 
-        PlayerPieces playerPieces = GameObject.Find("GM").GetComponent<PlayerPieces>();
-        playerPieces.Init();
     }
 
     /// <summary>
@@ -376,10 +375,13 @@ public class GameManager : MonoBehaviour
         }
         else
         { //legal roll
+            int posBefore = players[currentTurn].getPosition();
             players[currentTurn].increasePosition(rollBuffer[0] + rollBuffer[1] + rollBuffer[2]);
+            if(posBefore > players[currentTurn].getPosition() && players[currentTurn].getPosition() > 1) { collectGo(players[currentTurn]); }
         }
         for (int i = 0; i < rollBuffer.Length; i++) { rollBuffer[i] = 0; }
         if (rollType > 0) { runTileAction(); }
+        uiManager.setOn(uiManager.getEndTurnBtn());
     }
 
     /// <summary>
@@ -421,10 +423,17 @@ public class GameManager : MonoBehaviour
                 uiManager.setOn(uiManager.getEndTurnBtn());
                 break;
             case 1:
-                rollBuffer[0] = diceManager.getRollNo();
+                if (diceManager.getRollNo() < 2) { 
+                    rollBuffer[0] = 2; 
+                } else { 
+                    rollBuffer[0] = diceManager.getRollNo(); 
+                }
                 if (diceManager.getIsDouble())
                 {
                     rollType = 2;
+                    doneWait = false;
+                    runTileAction();
+                    yield return new WaitUntil(() => doneWait == true);
                     uiManager.setOff(uiManager.getEndTurnBtn());
                     uiManager.setOn(uiManager.getRollBtn());
                 }
@@ -435,9 +444,16 @@ public class GameManager : MonoBehaviour
                 }
                 break;
             case 2:
-                rollBuffer[1] = diceManager.getRollNo();
-                if (diceManager.getIsDouble())
-                {
+                if (diceManager.getRollNo() < 2) {
+                    rollBuffer[1] = 2;
+                } else {
+                    rollBuffer[1] = diceManager.getRollNo();
+                }
+                if (diceManager.getIsDouble()) 
+                    {
+                    doneWait = false;
+                    runTileAction();
+                    yield return new WaitUntil(() => doneWait == true);
                     uiManager.setOff(uiManager.getEndTurnBtn());
                     uiManager.setOn(uiManager.getRollBtn());
                     rollType = 3;
@@ -449,7 +465,11 @@ public class GameManager : MonoBehaviour
                 }
                 break;
             case 3:
-                rollBuffer[2] = diceManager.getRollNo();
+                if (diceManager.getRollNo() < 2) {
+                    rollBuffer[2] = 2;
+                } else {
+                    rollBuffer[2] = diceManager.getRollNo();
+                }
                 rollType = 1;
                 checkRoll();
                 break;
@@ -483,10 +503,12 @@ public class GameManager : MonoBehaviour
     public void nextPlayerTurn()
     {
         //check if currentTurn was last in players, if so set
-        if (currentTurn == players.Length - 1)
+        if (currentTurn == players.Length - 1 && rollType == 0)
         {
             rollType = 1;
             setPlayOrder();
+            PlayerPieces playerPieces = GameObject.Find("GM").GetComponent<PlayerPieces>();
+            playerPieces.Init();
         }
 
         currentTurn = (currentTurn + 1) % players.Length;
@@ -495,6 +517,7 @@ public class GameManager : MonoBehaviour
             currentTurn = (currentTurn + 1) % players.Length;
         }
 
+        uiManager.setOn(uiManager.getEndTurnBtn()); //?
         uiManager.setCurPlayerText(players[currentTurn].getPlayerName());
     }
 
@@ -505,7 +528,6 @@ public class GameManager : MonoBehaviour
     {
         PlayerObject player = players[currentTurn];
 
-        uiManager.setOn(uiManager.getEndTurnBtn());
         switch (board[player.getPosition()].getData().getTileAction())
         {
             case TileActionEnum.CollectGO:
@@ -537,6 +559,7 @@ public class GameManager : MonoBehaviour
             case TileActionEnum.Jail:
                 break;
         }
+        doneWait = true;
     }
 
     /// <summary>
@@ -636,6 +659,9 @@ public class GameManager : MonoBehaviour
                     if (tile.getData().getTileAction() == TileActionEnum.CollectGO)
                     {
                         player.setPosition(tile.getData().getPosition());
+
+                        uiManager.setOn(uiManager.getEndTurnBtn());
+                        runTileAction();
                         //call UI movements etc.
                         break;
                     }
@@ -662,15 +688,8 @@ public class GameManager : MonoBehaviour
 
                 if (prevPos > player.getPosition())
                 {
-                    foreach (TileObject tile in board.Values)
-                    {
-                        if (tile.getData().getTileAction() == TileActionEnum.CollectGO)
-                        {
-                            player.increaseMoney(Int32.Parse(((NonPropData)tile.getData()).getTileActionValue()));
-                            uiManager.setUpPopupUI(player.getPlayerName() + " gained £" + ((NonPropData)tile.getData()).getTileActionValue());
-                            break;
-                        }
-                    }
+
+                    collectGo(player);
                 }
                 break;
             case CardActionEnum.BankPays:
@@ -779,4 +798,14 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <returns>Returns the players</returns>
     public PlayerObject[] getPlayers() { return players; }
+
+    public void collectGo(PlayerObject player) {
+        foreach (TileObject tile in board.Values) {
+            if (tile.getData().getTileAction() == TileActionEnum.CollectGO) {
+                player.increaseMoney(Int32.Parse(((NonPropData)tile.getData()).getTileActionValue()));
+                uiManager.setUpPopupUI(player.getPlayerName() + " gained £" + ((NonPropData)tile.getData()).getTileActionValue());
+                break;
+            }
+        }
+    }
 }
