@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -379,12 +378,11 @@ public class GameManager : MonoBehaviour
                 case 3:
                     movePlayer(players[currentTurn], rollBuffer[2]);
                     break;
+            }
         }
-        }
-        for (int i = 0; i < rollBuffer.Length; i++) { rollBuffer[i] = 0; }
+        runTileAction();
         rollType = 1;
-        if (rollType > 0) { runTileAction(); }
-        uiManager.setOn(uiManager.getEndTurnBtn());
+        for (int i = 0; i < rollBuffer.Length; i++) { rollBuffer[i] = 0; }
     }
 
     /// <summary>
@@ -434,15 +432,15 @@ public class GameManager : MonoBehaviour
                 {
                     rollType = 2;
                     movePlayer(players[currentTurn], rollBuffer[0]);
-                    doneWait = false;
+                    //doneWait = false;
                     runTileAction();
-                    yield return new WaitUntil(() => doneWait == true);
+                    //yield return new WaitUntil(() => doneWait == true);
                     uiManager.setOff(uiManager.getEndTurnBtn());
                     uiManager.setOn(uiManager.getRollBtn());
                 }
-                else
-                {
+                else {
                     checkRoll();
+                    uiManager.setOn(uiManager.getEndTurnBtn());
                 }
                 break;
             case 2:
@@ -454,16 +452,16 @@ public class GameManager : MonoBehaviour
                 if (diceManager.getIsDouble()) 
                     {
                     movePlayer(players[currentTurn], rollBuffer[1]);
-                    doneWait = false;
+                    //doneWait = false;
                     runTileAction();
-                    yield return new WaitUntil(() => doneWait == true);
+                    //yield return new WaitUntil(() => doneWait == true);
                     uiManager.setOff(uiManager.getEndTurnBtn());
                     uiManager.setOn(uiManager.getRollBtn());
                     rollType = 3;
                 }
-                else
-                {
+                else {
                     checkRoll();
+                    uiManager.setOn(uiManager.getEndTurnBtn());
                 }
                 break;
             case 3:
@@ -473,6 +471,7 @@ public class GameManager : MonoBehaviour
                     rollBuffer[2] = diceManager.getRollNo();
                 }
                 checkRoll();
+                uiManager.setOn(uiManager.getEndTurnBtn());
                 break;
         }
     }
@@ -826,7 +825,7 @@ public class GameManager : MonoBehaviour
                 break;
             case RentTypeEnum.OneUtility:
             case RentTypeEnum.TwoUtilities:
-                amount = ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice() * (rollBuffer[0] + rollBuffer[1] + rollBuffer[2]);
+                amount = ((PropertyData)board[player.getPosition()].getData()).getCurrentRentPrice() * (rollBuffer[rollType - 1]);
                 break;
         }
 

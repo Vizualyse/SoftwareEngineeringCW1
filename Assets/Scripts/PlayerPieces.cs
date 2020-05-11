@@ -223,12 +223,15 @@ public class PlayerPieces : MonoBehaviour
             }
 
             float t = 0f;
-            while (t < 1)
-            {
+            Debug.Log("At the loop");
+            while (t < 1) {
+                Debug.Log("Start the loop");
                 t += (Time.deltaTime / 1f) * turns;
                 piece.transform.position = Vector3.Lerp(begin, stop, t);
                 yield return null;
+                Debug.Log("Past yield null");
             }
+            Debug.Log("Out da loop");
             if (i != midpoints.Count)
             {       //if were at a midpoint rotate the piece
                 piece.transform.localRotation = Quaternion.Euler(
